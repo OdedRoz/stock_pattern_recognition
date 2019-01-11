@@ -38,9 +38,22 @@ class window:
             matrix[current_coulmn] = 0
             chunk = self.data[i:i+self.candles_in_coulmn]
             rows = np.digitize(chunk['CLOSE'], self.matrix_rows_valus)
-            for row in rows:
-                matrix.iloc[row-1,current_coulmn] += self.value_to_add
+            #fix if number of rows in data isnt divided by 10
+            if len(rows) < self.candles_in_coulmn:
+                current_value_to_add = 1 / len(rows)
+                for row in rows:
+                    matrix.iloc[row - 1, current_coulmn] += current_value_to_add
+            else:
+                for row in rows:
+                    matrix.iloc[row-1,current_coulmn] += self.value_to_add
             current_coulmn += 1
+        if i < self.data_len and current_coulmn < 9:
+            matrix[current_coulmn] = 0
+            chunk = self.data[i:self.data_len]
+            rows = np.digitize(chunk['CLOSE'], self.matrix_rows_valus)
+            current_value_to_add = 1/(self.data_len-i)
+            for row in rows:
+                matrix.iloc[row-1,current_coulmn] += current_value_to_add
         return matrix
 
     def get_fitting_score(self):
